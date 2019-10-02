@@ -1,8 +1,8 @@
 # SimpleNARC is a super-simple library to read NARC files
 
-There is only one class:
+There is only one `NARC` class:
 
-* It holds an array of each file as a MemoryStream
+* It inherits IReadOnlyList\<byte[]\>
 * There's a method to save each file to a drive
 
 As I said, it's super-simple.

@@ -1,66 +1,63 @@
 ﻿using Kermalis.EndianBinaryIO;
-using System;
-using System.Collections.ObjectModel;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Kermalis.SimpleNARC
 {
-    public sealed class NARC : IDisposable
+    public sealed class NARC : IReadOnlyList<byte[]>
     {
-        private bool _isDisposed = false;
-        private readonly MemoryStream[] _files;
-        public ReadOnlyCollection<MemoryStream> Files { get; }
+        private readonly byte[][] _files;
+
+        public int Count => _files.Length;
+        public byte[] this[int fileNum] => _files[fileNum];
 
         public NARC(string path) : this(File.OpenRead(path)) { }
         public NARC(Stream stream)
         {
             using (var r = new EndianBinaryReader(stream, Endianness.LittleEndian))
             {
-                uint numFiles = r.ReadUInt32(0x18);
-                _files = new MemoryStream[numFiles];
+                int numFiles = r.ReadInt32(0x18);
+                _files = new byte[numFiles][];
                 uint[] startOffsets = new uint[numFiles];
                 uint[] endOffsets = new uint[numFiles];
-                for (uint i = 0; i < numFiles; i++)
+                for (int i = 0; i < numFiles; i++)
                 {
                     startOffsets[i] = r.ReadUInt32();
                     endOffsets[i] = r.ReadUInt32();
                 }
                 long BTNFOffset = r.BaseStream.Position;
                 long GMIFOffset = r.ReadUInt32(BTNFOffset + 0x4) + BTNFOffset;
-                for (uint i = 0; i < numFiles; i++)
+                for (int i = 0; i < numFiles; i++)
                 {
-                    _files[i] = new MemoryStream(r.ReadBytes((int)(endOffsets[i] - startOffsets[i]), GMIFOffset + startOffsets[i] + 0x8));
-                }
-                Files = new ReadOnlyCollection<MemoryStream>(_files);
-            }
-        }
-
-        public void Dispose()
-        {
-            if (!_isDisposed)
-            {
-                _isDisposed = true;
-                for (int i = 0; i < _files.Length; i++)
-                {
-                    _files[i].Dispose();
+                    _files[i] = r.ReadBytes((int)(endOffsets[i] - startOffsets[i]), GMIFOffset + startOffsets[i] + 0x8);
                 }
             }
         }
 
-        public void SaveFilesToFolder(string path)
+        public void SaveFiles(string path)
         {
-            if (_isDisposed)
-            {
-                throw new ObjectDisposedException(null);
-            }
             Directory.CreateDirectory(path);
             for (int i = 0; i < _files.Length; i++)
             {
-                using (var fs = new FileStream(path + Path.DirectorySeparatorChar + i, FileMode.Create, FileAccess.Write))
+                using (var fs = new FileStream(Path.Combine(path, i.ToString()), FileMode.Create, FileAccess.Write))
                 {
-                    _files[i].WriteTo(fs);
+                    byte[] file = _files[i];
+                    fs.Write(file, 0, file.Length);
                 }
             }
+        }
+
+        public IEnumerator<byte[]> GetEnumerator()
+        {
+            for (int i = 0; i < _files.Length; i++)
+            {
+                yield return _files[i];
+            }
+        }
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }
