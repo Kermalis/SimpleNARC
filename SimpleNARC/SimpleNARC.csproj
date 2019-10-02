@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Kermalis.SimpleNARC</RootNamespace>
+    <Authors>Kermalis</Authors>
+    <Copyright>Kermalis</Copyright>
+    <RepositoryUrl>https://github.com/Kermalis/SimpleNARC</RepositoryUrl>
+    <OutputPath>..\Build\</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="EndianBinaryIO">
+      <HintPath>..\Dependencies\EndianBinaryIO.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
