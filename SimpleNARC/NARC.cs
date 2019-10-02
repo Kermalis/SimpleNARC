@@ -35,12 +35,17 @@ namespace Kermalis.SimpleNARC
             }
         }
 
-        public void SaveFiles(string path)
+        public void SaveFiles(string path, string extension = "")
         {
             Directory.CreateDirectory(path);
             for (int i = 0; i < _files.Length; i++)
             {
-                using (var fs = new FileStream(Path.Combine(path, i.ToString()), FileMode.Create, FileAccess.Write))
+                string fileName = i.ToString();
+                if (!string.IsNullOrWhiteSpace(extension))
+                {
+                    fileName += "." + extension;
+                }
+                using (var fs = new FileStream(Path.Combine(path, fileName), FileMode.Create, FileAccess.Write))
                 {
                     byte[] file = _files[i];
                     fs.Write(file, 0, file.Length);
