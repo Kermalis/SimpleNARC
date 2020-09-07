@@ -11,9 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="EndianBinaryIO">
-      <HintPath>..\Dependencies\EndianBinaryIO.dll</HintPath>
-    </Reference>
+    <PackageReference Include="EndianBinaryIO" Version="1.0.1" />
   </ItemGroup>
 
 </Project>
